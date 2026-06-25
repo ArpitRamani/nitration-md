@@ -1,0 +1,33 @@
+# OS
+.DS_Store
+
+# Cohort-1 nitration site labels — derived from an unpublished study; NOT distributed.
+# Regenerate locally with scripts/make_md_sites.py from your own site table.
+md_sites/
+
+# MD build/production artifacts (regenerated; large binaries)
+*.dcd
+*.chk
+*.prmtop
+*.inpcrd
+*.rst
+*.nc
+sys_built.pdb
+clean*.pdb
+flat.pdb
+*.pdb1
+reduce_info.log
+leap.log
+*_renum.txt
+*_sslink
+results/
+
+# Slurm logs
+*.log
+prod_*
+gpu_test_*
+diag_*
+
+# Python
+__pycache__/
+*.pyc

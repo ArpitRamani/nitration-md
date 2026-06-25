@@ -1,0 +1,21 @@
+# CHI3L1 / YKL-40 build — Exp 1 theory test (best nitrated/non contrast: 11/13). PDB 1HJX or 1NWR.
+# Prep:  pdb4amber -i 1hjx_raw.pdb -o clean.pdb --reduce --dry
+#   - --dry strips the N-glycan (HETATM) and waters -> apo protein for Exp 1.
+#   - pdb4amber reports CHI3L1's disulfides (YKL-40 has 2); copy the pairs into bond lines.
+#   - inspect clean.pdb for chain breaks / missing loops before building.
+source leaprc.protein.ff19SB
+source leaprc.water.opc
+
+mol = loadpdb clean.pdb
+# --- disulfides: replace with the pairs pdb4amber reports ---
+# bond mol.A.SG mol.B.SG
+# bond mol.C.SG mol.D.SG
+
+solvateBox mol OPCBOX 12.0
+addIonsRand mol Na+ 0
+addIonsRand mol Na+ 30 Cl- 30
+check mol
+charge mol
+saveamberparm mol sys.prmtop sys.inpcrd
+savepdb mol sys_built.pdb
+quit

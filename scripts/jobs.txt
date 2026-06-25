@@ -1,0 +1,9 @@
+chi3l1/sys.prmtop chi3l1/sys.inpcrd chi3l1/chi3l1_r1 1 200 300
+chi3l1/sys.prmtop chi3l1/sys.inpcrd chi3l1/chi3l1_r2 2 200 300
+chi3l1/sys.prmtop chi3l1/sys.inpcrd chi3l1/chi3l1_r3 3 200 300
+lyz/sys.prmtop lyz/sys.inpcrd lyz/lyz_r1 1 200 300
+lyz/sys.prmtop lyz/sys.inpcrd lyz/lyz_r2 2 200 300
+lyz/sys.prmtop lyz/sys.inpcrd lyz/lyz_r3 3 200 300
+ttr/sys.prmtop ttr/sys.inpcrd ttr/ttr_native_r1 1 200 300
+ttr/sys.prmtop ttr/sys.inpcrd ttr/ttr_native_r2 2 200 300
+ttr/sys.prmtop ttr/sys.inpcrd ttr/ttr_native_r3 3 200 300

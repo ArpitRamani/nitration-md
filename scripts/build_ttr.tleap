@@ -1,0 +1,20 @@
+# TTR homotetramer build (Exp 2 baseline / native). PDB 1F41 or 1TTA.
+# Prep:  pdb4amber -i 1f41_raw.pdb -o clean.pdb --reduce --dry
+#   - KEEP all 4 chains (A,B,C,D) -> the biological tetramer.
+#   - --dry removes waters + T4 ligand (apo). For HOLO, keep T4 and parameterize it (GAFF).
+#   - TTR has NO disulfides (Cys10 is free); no bond lines needed.
+# NUMBERING: PDB is MATURE (1-127). Our data is precursor (UniProt, signal peptide -20):
+#   W61 -> PDB W41 ;  Y136 -> PDB Y116.  (the nitro build substitutes at PDB 41 / 116)
+source leaprc.protein.ff19SB
+source leaprc.water.opc
+
+mol = loadpdb clean.pdb
+solvateBox mol OPCBOX 12.0
+addIonsRand mol Na+ 0
+addIonsRand mol Na+ 40 Cl- 40       # ~0.15 M; tune to box
+
+check mol
+charge mol
+saveamberparm mol sys.prmtop sys.inpcrd
+savepdb mol sys_built.pdb
+quit

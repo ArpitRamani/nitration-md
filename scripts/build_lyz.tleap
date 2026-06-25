@@ -1,0 +1,23 @@
+# Human lysozyme (LYZ) build — Exp 1 theory test. PDB 1LZ1 (mature, monomer).
+# Prep:  pdb4amber -i 1lz1_raw.pdb -o clean.pdb --reduce --dry
+#   pdb4amber prints the disulfide pairs it detects and renames bonded CYS -> CYX.
+#   Human lysozyme has 4 disulfides; COPY the exact pairs from pdb4amber's output into the
+#   bond lines below (residue numbers are the PDB/mature numbering of clean.pdb).
+source leaprc.protein.ff19SB
+source leaprc.water.opc
+
+mol = loadpdb clean.pdb
+# --- 4 disulfides: replace with the pairs pdb4amber reports, e.g. ---
+# bond mol.6.SG  mol.128.SG
+# bond mol.30.SG mol.116.SG
+# bond mol.65.SG mol.81.SG
+# bond mol.77.SG mol.95.SG
+
+solvateBox mol OPCBOX 12.0
+addIonsRand mol Na+ 0
+addIonsRand mol Na+ 15 Cl- 15
+check mol
+charge mol
+saveamberparm mol sys.prmtop sys.inpcrd
+savepdb mol sys_built.pdb
+quit

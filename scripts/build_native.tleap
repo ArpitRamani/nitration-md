@@ -1,0 +1,20 @@
+# Native-protein system build (Exp 1). Edit the loadpdb line per protein.
+# Run after: pdb4amber -i raw.pdb -o clean.pdb --reduce --dry
+#   module load ambertools ; tleap -f build_native.tleap
+source leaprc.protein.ff19SB
+source leaprc.water.opc
+
+mol = loadpdb clean.pdb
+
+# disulfides: for each S-S pair, e.g.  bond mol.6.SG mol.127.SG
+#   (CYS must be renamed CYX in clean.pdb for bonded cysteines; pdb4amber --reduce flags them)
+
+solvateBox mol OPCBOX 12.0          # 12 A padding
+addIonsRand mol Na+ 0                # neutralize
+addIonsRand mol Na+ 30 Cl- 30       # ~0.15 M; adjust count to box size
+
+check mol
+charge mol
+saveamberparm mol sys.prmtop sys.inpcrd
+savepdb mol sys_built.pdb
+quit
