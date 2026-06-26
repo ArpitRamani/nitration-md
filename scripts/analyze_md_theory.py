@@ -34,12 +34,16 @@ def main():
     ap.add_argument("--traj", required=True)
     ap.add_argument("--sites", required=True)
     ap.add_argument("--stride", type=int, default=1)
+    ap.add_argument("--min_sasa", type=float, default=0.1,
+                    help="ring SASA (nm^2) above which an aromatic counts as solvent-accessible")
     a = ap.parse_args()
 
     t = md.load(a.traj, top=a.top, stride=a.stride)
-    t.superpose(t, 0)
+    # OPC water has a massless virtual site (element 'VS') with no SASA radius, and
+    # explicit solvent would mask the protein surface — drop water before any geometry.
+    t = t.atom_slice(t.topology.select("not water"))
     top = t.topology
-    print(f"loaded {t.n_frames} frames, {t.n_atoms} atoms", flush=True)
+    print(f"loaded {t.n_frames} frames, {t.n_atoms} atoms (water stripped)", flush=True)
 
     # acceptor/donor pools (protein-wide)
     carbox = top.select("(resname ASP and (name OD1 or name OD2)) or "
@@ -93,14 +97,24 @@ def main():
         print(f"{r['site']:8} {str(r['nitrated']):>4} {r['pcet_mindist']:>13.3f} "
               f"{r['pcet_frac_HB']:>8.3f} {r['thiol_mindist']:>14.3f} {r['sasa_ring']:>10.3f}")
 
-    nit = [r for r in rows if r["nitrated"]]; non = [r for r in rows if not r["nitrated"]]
-    if nit and non:
-        print(f"\n=== nitrated (n={len(nit)}) vs non (n={len(non)}) means ===")
+    def summarize(subset, label):
+        nit = [r for r in subset if r["nitrated"]]
+        non = [r for r in subset if not r["nitrated"]]
+        if not (nit and non):
+            print(f"\n{label}: need both groups (nitrated={len(nit)}, non={len(non)}) -- skipped")
+            return
+        print(f"\n=== {label}: nitrated (n={len(nit)}) vs non (n={len(non)}) means ===")
         for k in ["pcet_mindist", "pcet_frac_HB", "thiol_mindist", "sasa_ring"]:
             mn = np.nanmean([r[k] for r in nit]); mo = np.nanmean([r[k] for r in non])
             print(f"  {k:14} nitrated={mn:.3f}  non={mo:.3f}  diff={mn-mo:+.3f}")
-        print("\nTheory predicts nitrated: smaller pcet_mindist, higher pcet_frac_HB,")
-        print("smaller thiol_mindist, and/or larger sasa_ring than non-nitrated.")
+
+    summarize(rows, "all aromatics")
+    acc = [r for r in rows if r["sasa_ring"] >= a.min_sasa]
+    summarize(acc, f"accessible only (sasa_ring >= {a.min_sasa} nm^2)")
+    print("\nTheory predicts nitrated: smaller pcet_mindist, higher pcet_frac_HB,")
+    print("smaller thiol_mindist, and/or larger sasa_ring than non-nitrated.")
+    print("The accessible-only block is the honest test: among aromatics peroxynitrite can")
+    print("actually reach, does the carboxylate/thiol geometry separate nitrated from non?")
 
 
 if __name__ == "__main__":
